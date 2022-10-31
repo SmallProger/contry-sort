@@ -1,0 +1,47 @@
+.graphic {
+  max-height: 700px;
+  max-width: 1500px;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  overflow: hidden;
+  max-width: 100vw;
+  gap: 50px;
+}
+.btn {
+  position: absolute;
+
+  width: 50px;
+  height: 50px;
+
+  background-position: center;
+  background-size: 100%;
+  background-color: inherit;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+}
+.btn_back {
+  left: 10px;
+  top: 50%;
+  background-image: url('../../assets/navigation-back-arrow-svgrepo-com.svg');
+}
+.btn_save {
+  right: 10px;
+  top: 10px;
+  background-image: url('../../assets/save-file-svgrepo-com.svg');
+}
+.wrap-select-graphic {
+  position: relative;
+}
+.select {
+  width: 200px;
+  position: absolute;
+  left: 25px;
+  top: 5px;
+  height: 30px;
+}
