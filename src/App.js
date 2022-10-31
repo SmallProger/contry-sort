@@ -1,3 +1,4 @@
+
 import './App.css';
 import Form from './components/Form/Form';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -7,7 +8,7 @@ import { store } from './store';
 import { ISU } from './components/ISU/ISU';
 
 function App() {
-  console.log('App render')
+
   return (
     <div className="App">
       <Router>
