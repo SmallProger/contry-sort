@@ -37,6 +37,7 @@
 }
 .wrap-select-graphic {
   position: relative;
+  width: 100%;
 }
 .select {
   width: 200px;
