@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Bar } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import { setISUData } from '../../actions/actions';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import './ISUGraphic.css'
+import './Graphics.css'
 import { useNavigate } from 'react-router';
+import { read, utils, writeFileXLSX } from 'xlsx';
 
 const OPTIONS_IMG_ISU = {
   plugins: {
@@ -63,7 +64,8 @@ const getIMG = (data) => {
   });
   return countedIMG;
 }
-const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
+
+const Graphics = ({ contries, IMGdata, data, measures, weights, setISUData, ISUdata, params }) => {
   let [graphicIMGISUData, setGraphicIMGISUData] = useState(null);
   let [graphicIMGData, setGraphicIMGData] = useState(null);
   let [choosedParam, setChoosedParam] = useState('Внешняя политика');
@@ -72,6 +74,7 @@ const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
   useEffect(() => {
     let countedIMG = getIMG(IMGdata.data);
     let countedISU = countISU(data, weights);
+    console.log(countedISU);
     setISUData(countedISU);
     setGraphicIMGISUData({
       labels: contries,
@@ -90,7 +93,6 @@ const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
           stack: 'Stack 0',
           backgroundColor: 'rgba(53, 162, 235, 1)'
         },
-
       ]
     });
   }, [])
@@ -116,6 +118,50 @@ const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
       ]
     });
   }, [choosedParam])
+
+  const saveData = useCallback(() => {
+    const wb = utils.book_new();
+
+    let ISUdataToSave = contries.reduce((arr, contry, contryIndex) => {
+      let ISUdataElem = {
+        'Cтрана': contry,
+      }
+      params.map((param, paramIndex) => ISUdataElem[param] = data[contryIndex][paramIndex]);
+      ISUdataElem['ИСУ'] = ISUdata[contryIndex];
+      arr.push(ISUdataElem);
+      return arr;
+    }, []);
+    const wsISU = utils.json_to_sheet(ISUdataToSave);
+    utils.book_append_sheet(wb, wsISU, "ИСУ");
+
+    let ISUparamsToSave = params.reduce((arr, param, indexParam) => {
+      let elemISUData = {
+        'Параметр': param,
+        'Вес': weights[indexParam],
+        'Единица измерения': measures[indexParam],
+      }
+      arr.push(elemISUData);
+      return arr;
+    }, [])
+    const wsISUparams = utils.json_to_sheet(ISUparamsToSave);
+    utils.book_append_sheet(wb, wsISUparams, "Параметры ИСУ");
+
+    let IMGdataToSave = IMGdata.data.reduce((arr, contryData) => {
+      let elemIMGData = {
+        'Страна': contryData[0],
+      }
+      let lenContryData = contryData.length;
+      IMGdata.params.map((param, indexParam) => elemIMGData[param] = contryData[indexParam + 1]);
+      console.log(contryData[lenContryData - 1], contryData)
+      elemIMGData['ИМГ'] = contryData[lenContryData - 1];
+      arr.push(elemIMGData);
+      return arr;
+    }, [])
+    const wsIMG = utils.json_to_sheet(IMGdataToSave);
+    utils.book_append_sheet(wb, wsIMG, "ИМГ");
+    writeFileXLSX(wb, "output.xlsx");
+  }, [ISUdata, contries])
+
   if (!graphicIMGISUData && !graphicIMGData) {
     return (
       <h1>Loading...</h1>
@@ -132,7 +178,7 @@ const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
       />
       <div className='wrap-select-graphic'>
         <select className='select' onChange={event => setChoosedParam(event.target.value)}>
-          {IMGdata.params.map(elem => <option>{elem}</option>)}
+          {IMGdata.params.map((elem, index) => <option key={index}>{elem}</option>)}
         </select>
         <Bar
           className='graphic'
@@ -141,18 +187,21 @@ const Graphics = ({ contries, IMGdata, data, weights, setISUData }) => {
           data={graphicIMGData}
         />
       </div>
-      <button className='btn btn_save'></button>
+      <button onClick={() => saveData(contries, ISUdata)} className='btn btn_save'></button>
     </div>
   )
 }
 const mapStateToProps = (state) => {
   console.log(state);
-  let { contries, weights, data, IMGdata } = state;
+  let { contries, weights, data, IMGdata, ISUdata, params, measures } = state;
   return {
     contries,
     data,
+    params,
     weights,
     IMGdata,
+    ISUdata,
+    measures,
   }
 }
 const mapDispatchToProps = (dispatch) => {

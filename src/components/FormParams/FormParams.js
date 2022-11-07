@@ -33,17 +33,14 @@ const FormParams = (props) => {
         keysValuesSortedByColumns[2].push(value);
       }
     })
-    console.log(keysValuesSortedByColumns);
     setParams(keysValuesSortedByColumns[0]);
     setMeasures(keysValuesSortedByColumns[1]);
     setWeights(keysValuesSortedByColumns[2]);
-
     actions.setSubmitting(false);
     navigate('values');
   }
   useEffect(() => {
     setInitialValuesParams(getInitialValues(amountRows, 3));
-    console.log(initialValuesParams);
   }, [amountRows]);
   if (!initialValuesParams) {
     return (

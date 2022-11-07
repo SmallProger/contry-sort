@@ -16,6 +16,7 @@ function getInitialValues(rowAmount, colAmount) {
   }
   return initialValues;
 }
+
 function getData(contries, values) {
   let keysValues = Object.entries(values);
   let amoutContries = contries.length;
@@ -32,6 +33,7 @@ function getData(contries, values) {
   });
   return sortedDataByRows;
 }
+
 const FormParamsValues = (props) => {
   let { initialValues, contries, params } = props;
   let { setInitialValues, setIMGData, contriesError, setData, contriesLoaded, contriesRequested } = props;
@@ -40,10 +42,8 @@ const FormParamsValues = (props) => {
   const handleFetch = (path) => {
     contriesRequested();
     fetchData(path).then(data => {
-
       let IMGparams = Object.keys(data[0]).slice(1, -1);
       let IMGdata = data.map(elem => Object.values(elem));
-      console.log(IMGparams, IMGdata, data, "HERE");
       let contries = data.map(elem => elem['Страны']);
       setIMGData({ params: IMGparams, data: IMGdata });
       contriesLoaded(contries);
